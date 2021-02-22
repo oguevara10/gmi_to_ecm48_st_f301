@@ -59,7 +59,7 @@
 /* #define  MC.SMOOTH_BRAKING_ACTION_ON_OVERVOLTAGE */
 
 /* USER CODE END Private define */
-#define VBUS_TEMP_ERR_MASK (MC_OVER_VOLT| MC_UNDER_VOLT| MC_OVER_TEMP)
+#define VBUS_TEMP_ERR_MASK ~(0 | 0 | MC_OVER_TEMP)
 
 /* Private variables----------------------------------------------------------*/
 FOCVars_t FOCVars[NBR_OF_MOTORS];
@@ -240,9 +240,6 @@ __weak void MCboot( MCI_Handle_t* pMCIList[NBR_OF_MOTORS],MCT_Handle_t* pMCTList
   MCT[M1].pOTT = MC_NULL;
   pMCTList[M1] = &MCT[M1];
  
-  DOUT_SetOutputState(&ICLDOUTParamsM1, INACTIVE);
-  ICL_Init(&ICL_M1, &(pBusSensorM1->_Super), &ICLDOUTParamsM1);
-  STM_NextState(&STM[M1],ICLWAIT);
 
   /* USER CODE BEGIN MCboot 2 */
 
@@ -340,7 +337,6 @@ __weak void TSK_MediumFrequencyTaskM1(void)
   State_t StateM1;
   int16_t wAux = 0;
 
-  ICL_State_t ICLstate = ICL_Exec( &ICL_M1 );
   bool IsSpeedReliable = STO_PLL_CalcAvrgMecSpeedUnit( &STO_PLL_M1, &wAux );
   PQD_CalcElMotorPower( pMPM[M1] );
 
@@ -348,14 +344,6 @@ __weak void TSK_MediumFrequencyTaskM1(void)
 
   switch ( StateM1 )
   {
-  case ICLWAIT:
-    if ( ICLstate == ICL_INACTIVE )
-    {
-      /* If ICL is Inactive, move to IDLE */
-      STM_NextState( &STM[M1], IDLE );
-    }
-    break;
-
   case IDLE_START:
     RUC_Clear( &RevUpControlM1, MCI_GetImposedMotorDirection( oMCInterface[M1] ) );
     R3_1_TurnOnLowSides( pwmcHandle[M1] );
@@ -544,7 +532,7 @@ __weak void TSK_MediumFrequencyTaskM1(void)
     /* USER CODE BEGIN MediumFrequencyTask M1 5 */
 
     /* USER CODE END MediumFrequencyTask M1 5 */
-    STM_NextState( &STM[M1], ICLWAIT );
+    STM_NextState( &STM[M1], IDLE );
     break;
 
   default:
@@ -946,7 +934,6 @@ __weak void mc_lock_pins (void)
 {
 LL_GPIO_LockPin(M1_PWM_UH_GPIO_Port, M1_PWM_UH_Pin);
 LL_GPIO_LockPin(M1_PWM_VH_GPIO_Port, M1_PWM_VH_Pin);
-LL_GPIO_LockPin(M1_OCP_GPIO_Port, M1_OCP_Pin);
 LL_GPIO_LockPin(M1_PWM_VL_GPIO_Port, M1_PWM_VL_Pin);
 LL_GPIO_LockPin(M1_PWM_WH_GPIO_Port, M1_PWM_WH_Pin);
 LL_GPIO_LockPin(M1_PWM_WL_GPIO_Port, M1_PWM_WL_Pin);
