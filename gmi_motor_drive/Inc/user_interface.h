@@ -32,7 +32,6 @@
 #include "mc_interface.h"
 #include "mc_tuning.h"
 #include "state_machine.h"
-#include "UID.h"
 
 /** @addtogroup MCSDK
   * @{

@@ -35,20 +35,20 @@
                                                          are not used */
 														 
 /*********** Bus voltage sensing section ****************/
-#define VBUS_PARTITIONING_FACTOR      0.0034 /*!< It expresses how 
+#define VBUS_PARTITIONING_FACTOR      0.0063 /*!< It expresses how 
                                                        much the Vbus is attenuated  
                                                        before being converted into 
                                                        digital value */
-#define NOMINAL_BUS_VOLTAGE_V         205 
+#define NOMINAL_BUS_VOLTAGE_V         320 
 /******** Current reading parameters section ******/
 /*** Topology ***/
 #define THREE_SHUNT
 
-#define RSHUNT                        0.01000 
+#define RSHUNT                        0.03000 
 
 /*  ICSs gains in case of isolated current sensors,
         amplification gain for shunts based sensing */
-#define AMPLIFICATION_GAIN            7.33 
+#define AMPLIFICATION_GAIN            6.00 
 
 /*** Noise parameters ***/
 #define TNOISE_NS                     2500
@@ -57,9 +57,9 @@
    
 /************ Temperature sensing section ***************/
 /* V[V]=V0+dV/dT[V/Celsius]*(T-T0)[Celsius]*/
-#define V0_V                          0.668 /*!< in Volts */
-#define T0_C                          10 /*!< in Celsius degrees */
-#define dV_dT                         0.0198 /*!< V/Celsius degrees */
+#define V0_V                          2.935 /*!< in Volts */
+#define T0_C                          30 /*!< in Celsius degrees */
+#define dV_dT                         0.023 /*!< V/Celsius degrees */
 #define T_MAX                         125 /*!< Sensor measured 
                                                        temperature at maximum 
                                                        power stage working 

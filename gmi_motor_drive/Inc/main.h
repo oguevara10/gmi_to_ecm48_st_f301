@@ -72,8 +72,6 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define M1_ICL_SHUT_OUT_Pin LL_GPIO_PIN_15
-#define M1_ICL_SHUT_OUT_GPIO_Port GPIOC
 #define M1_CURR_AMPL_U_Pin LL_GPIO_PIN_0
 #define M1_CURR_AMPL_U_GPIO_Port GPIOA
 #define M1_CURR_AMPL_V_Pin LL_GPIO_PIN_1
@@ -96,8 +94,6 @@ void Error_Handler(void);
 #define M1_PWM_VH_GPIO_Port GPIOA
 #define M1_PWM_WH_Pin LL_GPIO_PIN_10
 #define M1_PWM_WH_GPIO_Port GPIOA
-#define M1_OCP_Pin LL_GPIO_PIN_11
-#define M1_OCP_GPIO_Port GPIOA
 #define UART_TX_Pin LL_GPIO_PIN_6
 #define UART_TX_GPIO_Port GPIOB
 #define UART_RX_Pin LL_GPIO_PIN_7

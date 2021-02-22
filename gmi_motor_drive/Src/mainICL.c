@@ -21,7 +21,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "motorcontrol.h"
-#include "stm32f3xx_ll_gpio.h"
+//#include "stm32f3xx_ll_gpio.h"
 #include "r_divider_bus_voltage_sensor.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -89,16 +89,14 @@ static void MX_NVIC_Init(void);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-//	uint16_t	Bus_Voltage_D, Bus_Voltage_V;
-	volatile uint16_t 	bus_voltage = 0;
-//	uint16_t 	bus_voltage_d = 0;	
-//	uint32_t	time_threshold_is_achieved = 0;
-	volatile uint32_t	time_now = 0;	
-//	uint32_t	time_to_activate = 0;
-//	volatile uint32_t	pin_before = 0;
-//	volatile uint32_t	pin_after = 0;
+	uint16_t	Bus_Voltage_D, Bus_Voltage_V;
+	uint16_t 	bus_voltage = 0;
+	uint16_t 	bus_voltage_d = 0;	
+	uint32_t	time_threshold_is_achieved = 0;
+	uint32_t	time_now = 0;	
+	uint32_t	time_to_activate = 0;
 	bool			isTicking = FALSE;
-	bool			success = FALSE;
+//	bool			success = FALSE;
 //	BusVoltageSensor_Handle_t *pBusSensor;
 //	MCT_Handle_t* pMCT = pHandle->pMCT[pHandle->bSelectedDrive];	
   /* USER CODE END 1 */
@@ -114,9 +112,16 @@ int main(void)
 
   /* Configure the system clock */
   SystemClock_Config();
-
+  LL_GPIO_InitTypeDef GPIO_InitStruct = {0};
   /* USER CODE BEGIN SysInit */
-
+  
+  // initialization for relay output pin
+  GPIO_InitStruct.Pin 			= LL_GPIO_PIN_5;
+  GPIO_InitStruct.Mode 			= LL_GPIO_MODE_OUTPUT;
+  GPIO_InitStruct.Speed 		= LL_GPIO_SPEED_FREQ_LOW;
+  GPIO_InitStruct.OutputType 	= LL_GPIO_OUTPUT_PUSHPULL;
+  GPIO_InitStruct.Pull 			= LL_GPIO_PULL_NO;
+  LL_GPIO_Init(GPIOB, &GPIO_InitStruct);
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
@@ -130,30 +135,17 @@ int main(void)
   /* Initialize interrupts */
   MX_NVIC_Init();
   /* USER CODE BEGIN 2 */
-  LL_GPIO_ResetOutputPin(GPIOA, LL_GPIO_PIN_3);
-//  pin_before = LL_GPIO_IsOutputPinSet(GPIOA, LL_GPIO_PIN_3);
-  LL_GPIO_SetOutputPin(GPIOA, LL_GPIO_PIN_3);
-//  pin_after = LL_GPIO_IsOutputPinSet(GPIOA, LL_GPIO_PIN_3);  
   
-  
-  LL_GPIO_SetOutputPin(GPIOB, LL_GPIO_PIN_5);
-//  pin_before = LL_GPIO_IsOutputPinSet(GPIOB, LL_GPIO_PIN_5);
-  LL_GPIO_ResetOutputPin(GPIOB, LL_GPIO_PIN_5);
-//  relay_pin_state = RELAY_PIN_SET;
-//  pin_after = LL_GPIO_IsOutputPinSet(GPIOB, LL_GPIO_PIN_5);
-
-  
-  
-//	#define  MC_HAL_IS_USED
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	#define delay 50000
     /* USER CODE END WHILE */
-//	bus_voltage = UI_GetReg(&UI_Params, MC_PROTOCOL_REG_BUS_VOLTAGE, &success);
+	//bus_voltage = UI_GetReg(&UI_Params, MC_PROTOCOL_REG_BUS_VOLTAGE, &success);
+//	bus_voltage = VBS_GetAvBusVoltage_V(pBusSensor);
+//	bus_voltage = VBS_GetAvBusVoltage_V(&(RealBusVoltageSensorParamsM1._Super));
 
 //	Bus_Voltage_D = VBS_GetAvBusVoltage_d(MCT[0].pBusVoltageSensor);
 	//Bus_Voltage_D = *pBusSensorM1._Super.AvBusVoltage_d;
@@ -163,34 +155,29 @@ int main(void)
 
 	RVBS_CalcAvVbus(pBusSensorM1); 									// updates bus voltage reading
 	bus_voltage = VBS_GetAvBusVoltage_V(MCT[0].pBusVoltageSensor);		// average bus voltage in Volts DC
-	//bus_voltage = VBS_GetAvBusVoltage_V(&(RealBusVoltageSensorParamsM1._Super));
 	
-	time_now = HAL_GetTick();
 	if ((isTicking == FALSE) && (bus_voltage >= (INRUSH_BUS_VOLTAGE_ON_THRESHOLD)))  {
-//		time_threshold_is_achieved	= 0;
-	  	//time_now = HAL_GetTick();
-//		time_to_activate = INRUSH_RELAY_DELAY_MS;
+		time_threshold_is_achieved	= 0;
+		time_to_activate = INRUSH_RELAY_DELAY_MS;
 		if(inrush_relay_state == INRUSH_RELAY_INACTIVE) { // relay should be off
 			isTicking = TRUE;
-			//time_now++;
 			// turn off relay
 			if(relay_pin_state == RELAY_PIN_SET) {
-			  //LL_GPIO_ResetOutputPin(GPIOB, LL_GPIO_PIN_5);
-			  relay_pin_state = RELAY_PIN_SET;
+			  LL_GPIO_ResetOutputPin(GPIOB, LL_GPIO_PIN_5);
+			  relay_pin_state = RELAY_PIN_RESET;
 		  	}
 		}
 	}
-	else if((isTicking == FALSE) && (bus_voltage >= (INRUSH_BUS_VOLTAGE_ON_THRESHOLD))) {
-//		time_threshold_is_achieved = 0;
+	else {
+		time_threshold_is_achieved = 0;
 		//time_to_activate = 0;
-		//time_now = 0;
 	}
-	  
+				  
 	//Turn on the relay when it reaches the low DC bus threshold after a time delay
     if((inrush_relay_state == INRUSH_RELAY_INACTIVE) && (isTicking)) {
 		//time_now = HAL_GetTick();
-	  	//time_now++;
-		if(time_now >= delay) {
+	  	time_now++;
+		if(time_now >= time_to_activate) {
 			inrush_relay_state = INRUSH_RELAY_ACTIVE;
 			isTicking = FALSE;
 			if(relay_pin_state == RELAY_PIN_RESET) {
@@ -200,7 +187,7 @@ int main(void)
 		}
 	}
     else {
-		//time_now = 0;
+		time_now = 0;
 	}
        
 	//Turn off the relay at 202VDC
@@ -211,7 +198,6 @@ int main(void)
 		if(relay_pin_state == RELAY_PIN_SET) { // relay should be off
 			LL_GPIO_ResetOutputPin(GPIOB, LL_GPIO_PIN_5);
 			relay_pin_state = RELAY_PIN_RESET;
-			//time_now = 0;
 		}
 	}
 	
@@ -614,27 +600,10 @@ static void MX_USART1_UART_Init(void)
   */
 static void MX_GPIO_Init(void)
 {
-  LL_GPIO_InitTypeDef GPIO_InitStruct = {0};
-  
+
   /* GPIO Ports Clock Enable */
   LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOA);
   LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOB);
-  
-  // initialization for relay output pin
-  GPIO_InitStruct.Pin 			= LL_GPIO_PIN_5;
-  GPIO_InitStruct.Mode 			= LL_GPIO_MODE_OUTPUT;
-  GPIO_InitStruct.Speed 		= LL_GPIO_SPEED_FREQ_LOW;
-  GPIO_InitStruct.OutputType 	= LL_GPIO_OUTPUT_PUSHPULL;
-  GPIO_InitStruct.Pull 			= LL_GPIO_PULL_NO;
-  LL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-  
-  // initialization for "SIN" test point
-  GPIO_InitStruct.Pin 			= LL_GPIO_PIN_3;
-  GPIO_InitStruct.Mode 			= LL_GPIO_MODE_OUTPUT;
-  GPIO_InitStruct.Speed 		= LL_GPIO_SPEED_FREQ_LOW;
-  GPIO_InitStruct.OutputType 	= LL_GPIO_OUTPUT_PUSHPULL;
-  GPIO_InitStruct.Pull 			= LL_GPIO_PULL_NO;
-  LL_GPIO_Init(GPIOA, &GPIO_InitStruct);  
 
 }
 
