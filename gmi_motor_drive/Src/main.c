@@ -71,7 +71,9 @@ static void MX_NVIC_Init(void);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-
+  // Regen disable. Prevent speed controller from commanding negative Iq which would cause regen. Good to include in early testing. 
+  PIDSpeedHandle_M1.hLowerOutputLimit=0;
+  PIDSpeedHandle_M1.wLowerIntegralLimit=0;
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -81,6 +83,10 @@ int main(void)
 
   /* USER CODE BEGIN Init */
 
+  // 2500ms delay is our workaround for the in rush bug we have discovered 20200715. 
+  // - Very minor issue we can resolve with our final code but for now, 
+  // -- just delay the whole code startup to allow the inrush to function as needed. 
+  LL_mDelay(2500); 
   /* USER CODE END Init */
 
   /* Configure the system clock */

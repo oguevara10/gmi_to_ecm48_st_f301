@@ -72,6 +72,8 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define M1_ICL_SHUT_OUT_Pin LL_GPIO_PIN_15
+#define M1_ICL_SHUT_OUT_GPIO_Port GPIOC
 #define M1_CURR_AMPL_U_Pin LL_GPIO_PIN_0
 #define M1_CURR_AMPL_U_GPIO_Port GPIOA
 #define M1_CURR_AMPL_V_Pin LL_GPIO_PIN_1

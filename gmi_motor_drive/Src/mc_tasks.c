@@ -358,7 +358,7 @@ __weak void TSK_MediumFrequencyTaskM1(void)
 
   case IDLE_START:
     RUC_Clear( &RevUpControlM1, MCI_GetImposedMotorDirection( oMCInterface[M1] ) );
-    R3_1_TurnOnLowSides( pwmcHandle[M1] );
+    // R3_1_TurnOnLowSides( pwmcHandle[M1] ); // GMI Mod: Don't Charge Boot Cap
     TSK_SetChargeBootCapDelayM1( CHARGE_BOOT_CAP_TICKS );
     STM_NextState( &STM[M1], CHARGE_BOOT_CAP );
     break;

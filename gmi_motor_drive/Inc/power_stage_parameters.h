@@ -59,7 +59,7 @@
 /* V[V]=V0+dV/dT[V/Celsius]*(T-T0)[Celsius]*/
 #define V0_V                          0.668 /*!< in Volts */
 #define T0_C                          10 /*!< in Celsius degrees */
-#define dV_dT                         0.020 /*!< V/Celsius degrees */
+#define dV_dT                         0.0198 /*!< V/Celsius degrees */
 #define T_MAX                         125 /*!< Sensor measured 
                                                        temperature at maximum 
                                                        power stage working 
